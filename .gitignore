@@ -1,0 +1,5 @@
+*.txt
+.env
+.env.development
+node_modules
+public/*
