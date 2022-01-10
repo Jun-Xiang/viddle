@@ -14,7 +14,6 @@ module.exports = {
             if(!context.user) {
               throw new AuthenticationError('You are not authenticated')
             }
-            console.log(fieldConfig);
             return resolve(source,args,context,info)
           }
         }
