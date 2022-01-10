@@ -26,7 +26,14 @@ const createAccessToken = user => {
 	return jwt.sign(payload, process.env.AT_SECRET, { expiresIn: "7h" });
 };
 
+const verifyAccessToken = token => {
+	if (!token || token.length === 0) return null;
+	const payload = jwt.verify(token, process.env.AT_SECRET);
+	return payload;
+};
+
 module.exports = {
 	verifyGoogleAuthToken,
 	createAccessToken,
+	verifyAccessToken,
 };

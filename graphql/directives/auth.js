@@ -12,7 +12,7 @@ module.exports = {
           const {resolve = defaultFieldResolver} = fieldConfig
           fieldConfig.resolve = async function(source, args, context,info ) {
             if(!context.user) {
-              throw new AuthenticationError('You are not authentication')
+              throw new AuthenticationError('You are not authenticated')
             }
             console.log(fieldConfig);
             return resolve(source,args,context,info)

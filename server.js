@@ -4,12 +4,23 @@ const express = require("express");
 const mongoose = require("mongoose");
 const schema = require("./graphql");
 
+const { verifyAccessToken } = require("./utils/auth");
+
 const PORT = process.env.PORT || 4000;
 
 async function startApolloServer(schema) {
 	const app = express();
 	const server = new ApolloServer({
 		schema,
+		context: ({ req, res }) => {
+			const token = req.headers.authorization || "";
+			const payload = verifyAccessToken(token);
+			return {
+				req,
+				res,
+				user: payload || null,
+			};
+		},
 	});
 	await server.start();
 	await mongoose.connect(
