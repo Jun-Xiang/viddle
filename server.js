@@ -2,6 +2,8 @@ require("dotenv").config();
 const { ApolloServer } = require("apollo-server-express");
 const express = require("express");
 const mongoose = require("mongoose");
+const { graphqlUploadExpress } = require("graphql-upload");
+
 const schema = require("./graphql");
 
 const { verifyAccessToken } = require("./utils/auth");
@@ -33,6 +35,7 @@ async function startApolloServer(schema) {
 	);
 
 	app.use(express.static("/public"));
+	app.use(graphqlUploadExpress());
 	server.applyMiddleware({ app, cors: true, path: "/graphql" });
 	app.listen(PORT, _ => console.log("Server started 🚀"));
 }

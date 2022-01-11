@@ -1,19 +1,13 @@
-const { ApolloError } = require("apollo-server-express");
 const client = require("../config/google-auth");
 const jwt = require("jsonwebtoken");
 
 const verifyGoogleAuthToken = async token => {
-	try {
-		const ticket = await client.verifyIdToken({
-			idToken: token,
-			audience: process.env.GOOGLE_CLIENT_ID,
-		});
-		const payload = ticket.getPayload();
-		return payload;
-	} catch (err) {
-		console.error(err);
-		throw new ApolloError("Something went wrong");
-	}
+	const ticket = await client.verifyIdToken({
+		idToken: token,
+		audience: process.env.GOOGLE_CLIENT_ID,
+	});
+	const payload = ticket.getPayload();
+	return payload;
 };
 
 const createAccessToken = user => {
