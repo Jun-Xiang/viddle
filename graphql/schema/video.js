@@ -27,6 +27,7 @@ module.exports = gql`
 
 	extend type Mutation {
 		addVideo(video: VideoInput): Video @auth
+		# TODO: do edit and delete
 		incrementViews(id: ID): Video
 		likeVideo(id: ID): Video @auth
 		unlikeVideo(id: ID): Video @auth
