@@ -15,7 +15,7 @@ module.exports = gql`
 		description: String
 		category: String
 		author: User
-		likes: Int
+		likes: [ID]
 		views: Int
 		createdAt: String
 	}
@@ -27,7 +27,9 @@ module.exports = gql`
 
 	extend type Mutation {
 		addVideo(video: VideoInput): Video @auth
-		# TODO: do edit and delete
+		updateVideo(id: ID, video: VideoInput): Video @auth
+		deleteVideo(id: ID): Video @auth
+
 		incrementViews(id: ID): Video
 		likeVideo(id: ID): Video @auth
 		unlikeVideo(id: ID): Video @auth

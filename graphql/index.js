@@ -3,9 +3,9 @@ const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 const { authDirectiveTransformer } = require("./directives/auth");
 
-const transforms = [authDirectiveTransformer];
+const transforms = [{ transform: authDirectiveTransformer, name: "auth" }];
 const schema = transforms.reduce(
-	(acc, cur) => cur(acc, "auth"),
+	(acc, cur) => cur.transform(acc, cur.name),
 	makeExecutableSchema({
 		typeDefs,
 		resolvers,

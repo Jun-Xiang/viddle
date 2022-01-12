@@ -7,24 +7,15 @@ const {
 
 module.exports = {
 	query: {
-		getComments: async (_, { videoId }) => {
-			const comments = await getComments(videoId);
-			console.log(comments[0].id);
-			return comments;
-		},
+		getComments: async (_, { videoId }) => await getComments(videoId),
 	},
 	mutation: {
-		addComment: async (_, { videoId, comment }, ctx) => {
-			const newComment = await addComment(videoId, ctx.user.id, comment);
-			return newComment;
-		},
-		updateComment: async (_, { id, comment }) => {
-			const newComment = await updateComment(id, comment);
-			return newComment;
-		},
-		deleteComment: async (_, { id }) => {
-			const deletedComment = await deleteComment(id);
-			return deletedComment;
-		},
+		addComment: async (_, { videoId, comment }, ctx) =>
+			await addComment(videoId, ctx.user.id, comment),
+
+		updateComment: async (_, { id, comment }) =>
+			await updateComment(id, comment),
+
+		deleteComment: async (_, { id }) => await deleteComment(id),
 	},
 };

@@ -1,6 +1,21 @@
 const UserModel = require("../models/User");
 const VideoModel = require("../models/Video");
-const cloudinary = require("../config/cloudinary");
+const { streamVideoUpload, removeFile } = require("../utils/cloudinary");
+
+// Helpers
+const handleVideoInput = async (video, authorId) => {
+	let { file, title, description, url } = video;
+	if (file && !url) {
+		const { createReadStream } = await file;
+		const readable = createReadStream();
+		const result = await streamVideoUpload(readable, authorId);
+
+		url = result.url;
+	}
+	return { title, description, url };
+};
+
+//
 
 const getVideoById = async id => {
 	const video = await VideoModel.findById(id).populate("author");
@@ -31,38 +46,49 @@ const getSubscribingsVideos = async (offset, next, userId) => {
 };
 
 const createVideo = async (video, authorId) => {
-	const streamUpload = stream =>
-		new Promise((res, rej) => {
-			const cldUploadStream = cloudinary.uploader.upload_stream(
-				{
-					resource_type: "video",
-				},
-				(err, result) => {
-					if (result) return res(result);
-					else rej(err);
-				}
-			);
-			stream.pipe(cldUploadStream);
-		});
-
-	let { file, title, description, url } = video;
-	if (!url) {
-		const { createReadStream } = await file;
-		const readable = createReadStream();
-		const result = await streamUpload(readable);
-
-		url = result.url;
-	}
-
+	const { title, description, url } = await handleVideoInput(video, authorId);
 	const newVideo = await VideoModel.create({
 		title,
 		description,
 		url,
 		author: authorId,
 	});
+	await newVideo.populate("author");
+
 	return newVideo;
 };
 
+const updateVideo = async (id, video) => {
+	const { title, description, url } = await handleVideoInput(video);
+	const updatedVideo = await VideoModel.findByIdAndUpdate(
+		id,
+		{
+			title,
+			description,
+			url,
+		},
+		{
+			new: true,
+		}
+	).populate("author");
+	return updatedVideo;
+};
+
+const deleteVideo = async id => {
+	const deletedVideo = await VideoModel.findByIdAndDelete(id).populate(
+		"author"
+	);
+
+	await removeFile(deletedVideo.url, deletedVideo.author.id);
+	return deletedVideo;
+};
+
+const deleteVideosByUser = async userId => {
+	const deletedVideos = await VideoModel.findOneAndDelete({
+		author: userId,
+	});
+	return deletedVideos;
+};
 const incrementViews = async id => {
 	const updatedVideo = await VideoModel.findByIdAndUpdate(
 		id,
@@ -130,6 +156,9 @@ module.exports = {
 	getVideos,
 	getSubscribingsVideos,
 	createVideo,
+	updateVideo,
+	deleteVideo,
+	deleteVideosByUser,
 	incrementViews,
 	addLikes,
 	removeFromLikes,
