@@ -1,11 +1,13 @@
 const UserModel = require("../models/User");
-const VideoModel = require("../models/Video");
+
 const {
 	isAssetFromCloudinary,
 	removeFile,
 	fileImageUpload,
 	deleteFolder,
 } = require("../utils/cloudinary");
+
+const { getBufferFromStream } = require("../utils/user");
 
 const transformPojo = user => {
 	user.id = user._id;
@@ -42,7 +44,10 @@ const updateUser = async (userId, { username, bannerFile, profileFile }) => {
 	const upload = async file => {
 		const { createReadStream } = await file;
 		const stream = createReadStream();
-		const result = await fileImageUpload(stream, userId);
+		// Should use upload_stream but i wan use other stuff :)
+		const buffer = await getBufferFromStream(stream);
+		const data = "data:image/png;base64," + buffer.toString("base64");
+		const result = await fileImageUpload(data, userId);
 		return result;
 	};
 
@@ -63,7 +68,7 @@ const updateUser = async (userId, { username, bannerFile, profileFile }) => {
 };
 
 const deleteUser = async userId => {
-	// await deleteFolder(userId);
+	await deleteFolder(userId);
 	const user = await UserModel.deleteOne({ _id: userId });
 	return user;
 };
