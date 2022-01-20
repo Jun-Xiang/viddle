@@ -6,6 +6,7 @@ const addMessage = async (roomId, message, sender) => {
 		message,
 		sender,
 	});
+	// Should store the user and just return the userId but i guess this should work
 	await newMessage.populate("sender");
 	return newMessage;
 };

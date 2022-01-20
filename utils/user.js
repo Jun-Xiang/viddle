@@ -6,6 +6,13 @@ const getBufferFromStream = stream =>
 		stream.on("error", rej);
 	});
 
+const getSubscribersCount = user => {
+	user.id = user._id;
+	user.subscribers = user.subscribers.length;
+	return user;
+};
+
 module.exports = {
 	getBufferFromStream,
+	getSubscribersCount,
 };

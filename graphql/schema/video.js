@@ -3,9 +3,9 @@ const { gql } = require("apollo-server-express");
 module.exports = gql`
 	input VideoInput {
 		file: Upload
-		title: String
-		description: String
-		url: String
+		title: String!
+		description: String!
+		url: String!
 	}
 
 	type Video {
@@ -16,6 +16,7 @@ module.exports = gql`
 		category: String
 		author: User
 		likes: [ID]
+		dislikes: [ID]
 		views: Int
 		createdAt: String
 	}

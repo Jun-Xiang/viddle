@@ -7,23 +7,17 @@ const {
 	deleteFolder,
 } = require("../utils/cloudinary");
 
-const { getBufferFromStream } = require("../utils/user");
-
-const transformPojo = user => {
-	user.id = user._id;
-	user.subscribers = user.subscribers.length;
-	return user;
-};
+const { getBufferFromStream, getSubscribersCount } = require("../utils/user");
 
 const getUserById = async id => {
 	const user = await UserModel.findById(id).lean();
-	return transformPojo(user);
+	return getSubscribersCount(user);
 };
 
 const getUser = async query => {
 	let user = await UserModel.findOne(query).lean();
 	if (user) {
-		user = transformPojo(user);
+		user = getSubscribersCount(user);
 	}
 	return user;
 };
@@ -35,7 +29,7 @@ const createUser = async ({ username, email, profilePic }) => {
 		profilePic,
 	}).then(doc => doc.toObject());
 
-	return transformPojo(newUser);
+	return getSubscribersCount(newUser);
 };
 
 const updateUser = async (userId, { username, bannerFile, profileFile }) => {
@@ -64,7 +58,7 @@ const updateUser = async (userId, { username, bannerFile, profileFile }) => {
 	user.username = username;
 	const doc = await user.save();
 
-	return transformPojo(doc.toObject());
+	return getSubscribersCount(doc.toObject());
 };
 
 const deleteUser = async userId => {
@@ -77,7 +71,7 @@ const subscribe = async (userId, curUserId) => {
 	const channelOwner = await UserModel.findById(userId);
 	const subscriber = await UserModel.findById(curUserId);
 	if (userId === curUserId || channelOwner.subscribers.includes(curUserId)) {
-		return transformPojo(subscriber.toObject());
+		return getSubscribersCount(subscriber.toObject());
 	}
 
 	channelOwner.subscribers.push(curUserId);
@@ -86,7 +80,7 @@ const subscribe = async (userId, curUserId) => {
 	const subscriberDoc = await subscriber.save();
 
 	// * return myself
-	return transformPojo(subscriberDoc.toObject());
+	return getSubscribersCount(subscriberDoc.toObject());
 };
 
 const unsubscribe = async (userId, curUserId) => {
@@ -106,7 +100,7 @@ const unsubscribe = async (userId, curUserId) => {
 			new: true,
 		}
 	).lean();
-	return transformPojo(subscriber);
+	return getSubscribersCount(subscriber);
 };
 
 module.exports = {

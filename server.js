@@ -56,7 +56,7 @@ async function startApolloServer(schema) {
 		],
 		context: ({ req, res }) => {
 			const token = req.headers.authorization || "";
-			const payload = verifyAccessToken(token);
+			const payload = verifyAccessToken(token) || null;
 			return {
 				req,
 				res,

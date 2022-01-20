@@ -1,6 +1,7 @@
 const UserModel = require("../models/User");
 const VideoModel = require("../models/Video");
 const { streamVideoUpload, removeFile } = require("../utils/cloudinary");
+const { getSubscribersCount } = require("../utils/user");
 
 // Helpers
 const handleVideoInput = async (video, authorId) => {
@@ -18,8 +19,9 @@ const handleVideoInput = async (video, authorId) => {
 //
 
 const getVideoById = async id => {
-	const video = await VideoModel.findById(id).populate("author");
-
+	const video = await VideoModel.findById(id).populate("author").lean();
+	video.author = getSubscribersCount(video.author);
+	video.id = video._id;
 	return video;
 };
 
@@ -28,8 +30,13 @@ const getVideos = async (offset, next, userId) => {
 		.sort({ createdAt: -1 })
 		.skip(Number(offset))
 		.limit(Number(next))
-		.populate("author");
-	return videos;
+		.populate("author")
+		.lean();
+
+	return videos.map(
+		v => (v.author = getSubscribersCount(v.author)),
+		(v.id = v._id)
+	);
 };
 
 const getSubscribingsVideos = async (offset, next, userId) => {
