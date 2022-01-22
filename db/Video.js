@@ -26,18 +26,30 @@ const getVideoById = async id => {
 };
 
 const getVideos = async (offset, next, userId) => {
-	const videos = await VideoModel.find({})
+	const videos = await VideoModel.find({ type: "video" })
 		.sort({ createdAt: -1 })
 		.skip(Number(offset))
 		.limit(Number(next))
 		.populate("author")
 		.lean();
-	const res = videos.map(v => {
-		v.author = getSubscribersCount(v.author);
+	return videos.map(v => {
+		v.author = getSubscribersCount({ ...v.author });
 		v.id = v._id;
 		return v;
 	});
-	return res;
+};
+
+const getUserVideos = async id => {
+	const videos = await VideoModel.find({ _id: id })
+		.sort({ createdAt: -1 })
+		.populate("author")
+		.lean();
+
+	return videos.map(v => {
+		v.author = getSubscribersCount({ ...v.author });
+		v.id = v._id;
+		return v;
+	});
 };
 
 const getSubscribingsVideos = async (offset, next, userId) => {
@@ -49,11 +61,13 @@ const getSubscribingsVideos = async (offset, next, userId) => {
 		.sort({ createdAt: -1 })
 		.skip(Number(offset))
 		.limit(Number(next))
-		.populate("author");
-	return videos.map(
-		v => (v.author = getSubscribersCount(v.author)),
-		(v.id = v._id)
-	);
+		.populate("author")
+		.lean();
+	return videos.map(v => {
+		v.author = getSubscribersCount({ ...v.author });
+		v.id = v._id;
+		return v;
+	});
 };
 
 const createVideo = async (video, authorId) => {
@@ -170,6 +184,7 @@ module.exports = {
 	getVideoById,
 	getVideos,
 	getSubscribingsVideos,
+	getUserVideos,
 	createVideo,
 	updateVideo,
 	deleteVideo,

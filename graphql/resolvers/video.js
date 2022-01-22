@@ -1,6 +1,7 @@
 const {
 	getVideoById,
 	getVideos,
+	getUserVideos,
 	createVideo,
 	updateVideo,
 	deleteVideo,
@@ -16,6 +17,7 @@ module.exports = {
 		getVideo: async (_, { id }) => await getVideoById(id),
 		getVideos: async (_, { offset = 0, next = 10 }) =>
 			await getVideos(offset, next),
+		getUserVideos: async (_, __, ctx) => await getUserVideos(ctx.user.id),
 	},
 	mutation: {
 		addVideo: async (_, { video }, ctx) =>

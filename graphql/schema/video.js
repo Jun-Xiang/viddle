@@ -5,8 +5,8 @@ module.exports = gql`
 		file: Upload
 		title: String!
 		description: String!
-		url: String
 		type: String
+		url: String
 	}
 
 	type Video {
@@ -25,6 +25,7 @@ module.exports = gql`
 	extend type Query {
 		getVideo(id: ID): Video
 		getVideos(offset: Int, next: Int): [Video]
+		getUserVideos: [Video]
 	}
 
 	extend type Mutation {

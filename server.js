@@ -92,9 +92,6 @@ async function startApolloServer(schema) {
 		const query = new URLSearchParams(req.url.split("?")[1]);
 		const isInitiating = query.get("initiator") === "true";
 		const token = query.get("token");
-		console.log(req.url);
-		console.log(isInitiating, token, id);
-		console.log(req.headers);
 		let fileStream;
 		if (isInitiating) {
 			const filename = `${Date.now() + id}.webm`;
@@ -103,20 +100,27 @@ async function startApolloServer(schema) {
 					flags: "a",
 				})
 				.on("close", async _ => {
-					const result = await pathUpload(filename, id);
-					await VideoModel.findOneAndUpdate(
-						{
-							author: id,
-							type: "live",
-						},
-						{
-							url: result.url,
-						},
-						{
-							sort: { createdAt: -1 },
-						}
-					);
-					fs.unlinkSync(filename);
+					try {
+						const result = await pathUpload(filename, id);
+						await VideoModel.findOneAndUpdate(
+							{
+								author: id,
+								type: "live",
+							},
+							{
+								url: result.url,
+							},
+							{
+								sort: { createdAt: -1 },
+							}
+						);
+						await UserModel.findByIdAndUpdate(id, {
+							isLive: false,
+						});
+						fs.unlinkSync(filename);
+					} catch (err) {
+						console.log(err);
+					}
 				});
 		} else {
 			if (clients[id]) clients[id].push(ws);
@@ -124,7 +128,7 @@ async function startApolloServer(schema) {
 		}
 
 		ws.on("message", msg => {
-			clients[id].forEach(ws => {
+			clients[id]?.forEach(ws => {
 				ws.send(msg);
 			});
 			fileStream.write(msg);

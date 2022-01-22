@@ -9,6 +9,7 @@ module.exports = gql`
 		bannerPic: String
 		subscribers: Int
 		subscribings: [ID]
+		isLive: Boolean
 	}
 
 	input UserInput {
