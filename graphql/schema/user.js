@@ -27,5 +27,6 @@ module.exports = gql`
 		deleteUser: User @auth
 		subscribe(userId: ID): User @auth
 		unsubscribe(userId: ID): User @auth
+		updateLiveStatus(isLive: Boolean): User @auth
 	}
 `;

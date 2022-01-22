@@ -21,12 +21,27 @@ const streamVideoUpload = (stream, userId) =>
 		stream.pipe(cldUploadStream);
 	});
 
-const fileImageUpload = (stream, userId) =>
+const fileImageUpload = (data, userId) =>
 	new Promise((res, rej) => {
 		cloudinary.uploader.upload(
-			stream,
+			data,
 			{
 				folder: userId,
+			},
+			(err, result) => {
+				if (result) res(result);
+				else rej(err);
+			}
+		);
+	});
+
+const pathUpload = (path, userId) =>
+	new Promise((res, rej) => {
+		cloudinary.uploader.upload(
+			path,
+			{
+				folder: userId,
+				resource_type: "video",
 			},
 			(err, result) => {
 				if (result) res(result);
@@ -92,4 +107,5 @@ module.exports = {
 	fileImageUpload,
 	removeFile,
 	deleteFolder,
+	pathUpload,
 };

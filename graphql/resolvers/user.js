@@ -5,6 +5,7 @@ const {
 	subscribe,
 	unsubscribe,
 	deleteUser,
+	updateLiveStatus,
 } = require("../../db/User");
 
 module.exports = {
@@ -31,5 +32,8 @@ module.exports = {
 
 		unsubscribe: async (_, { userId }, ctx) =>
 			await unsubscribe(userId, ctx.user.id),
+
+		updateLiveStatus: async (_, { isLive }, ctx) =>
+			await updateLiveStatus(isLive, ctx.user.id),
 	},
 };

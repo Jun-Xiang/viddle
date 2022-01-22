@@ -103,6 +103,18 @@ const unsubscribe = async (userId, curUserId) => {
 	return getSubscribersCount(subscriber);
 };
 
+const updateLiveStatus = async (isLive, userId) => {
+	const user = await UserModel.findByIdAndUpdate(
+		userId,
+		{
+			isLive,
+		},
+		{ new: true }
+	).lean();
+
+	return getSubscribersCount(user);
+};
+
 module.exports = {
 	getUserById,
 	getUser,
@@ -111,4 +123,5 @@ module.exports = {
 	deleteUser,
 	subscribe,
 	unsubscribe,
+	updateLiveStatus,
 };

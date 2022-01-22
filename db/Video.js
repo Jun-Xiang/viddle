@@ -5,7 +5,7 @@ const { getSubscribersCount } = require("../utils/user");
 
 // Helpers
 const handleVideoInput = async (video, authorId) => {
-	let { file, title, description, url } = video;
+	let { file, title, description, url, type } = video;
 	if (file && !url) {
 		const { createReadStream } = await file;
 		const readable = createReadStream();
@@ -13,7 +13,7 @@ const handleVideoInput = async (video, authorId) => {
 
 		url = result.url;
 	}
-	return { title, description, url };
+	return { title, description, url, type };
 };
 
 //
@@ -32,11 +32,12 @@ const getVideos = async (offset, next, userId) => {
 		.limit(Number(next))
 		.populate("author")
 		.lean();
-
-	return videos.map(
-		v => (v.author = getSubscribersCount(v.author)),
-		(v.id = v._id)
-	);
+	const res = videos.map(v => {
+		v.author = getSubscribersCount(v.author);
+		v.id = v._id;
+		return v;
+	});
+	return res;
 };
 
 const getSubscribingsVideos = async (offset, next, userId) => {
@@ -49,16 +50,23 @@ const getSubscribingsVideos = async (offset, next, userId) => {
 		.skip(Number(offset))
 		.limit(Number(next))
 		.populate("author");
-	return videos;
+	return videos.map(
+		v => (v.author = getSubscribersCount(v.author)),
+		(v.id = v._id)
+	);
 };
 
 const createVideo = async (video, authorId) => {
-	const { title, description, url } = await handleVideoInput(video, authorId);
+	const { title, description, url, type } = await handleVideoInput(
+		video,
+		authorId
+	);
 	const newVideo = await VideoModel.create({
 		title,
 		description,
 		url,
 		author: authorId,
+		type,
 	});
 	await newVideo.populate("author");
 

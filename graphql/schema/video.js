@@ -5,7 +5,8 @@ module.exports = gql`
 		file: Upload
 		title: String!
 		description: String!
-		url: String!
+		url: String
+		type: String
 	}
 
 	type Video {

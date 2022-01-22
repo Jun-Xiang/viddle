@@ -25,6 +25,10 @@ const UserSchema = new Schema({
 		type: Array,
 		default: [],
 	},
+	isLive: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 UserSchema.post("deleteOne", async function (res, next) {
