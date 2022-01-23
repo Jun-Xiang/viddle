@@ -11,6 +11,7 @@ const {
 	addDislikes,
 	removeFromDislikes,
 	searchVideos,
+	getSubscribingsVideos,
 } = require("../../db/Video");
 
 module.exports = {
@@ -21,6 +22,8 @@ module.exports = {
 		getUserVideos: async (_, __, ctx) => await getUserVideos(ctx.user.id),
 		searchVideos: async (_, { searchTerm }) =>
 			await searchVideos(searchTerm),
+		getSubscribingsVideos: async (_, { offset = 0, next = 10 }, ctx) =>
+			await getSubscribingsVideos(offset, next, ctx.user.id),
 	},
 	mutation: {
 		addVideo: async (_, { video }, ctx) =>
