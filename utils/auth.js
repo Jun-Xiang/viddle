@@ -21,9 +21,13 @@ const createAccessToken = user => {
 };
 
 const verifyAccessToken = token => {
-	if (!token || token.length === 0) return null;
-	const payload = jwt.verify(token, process.env.AT_SECRET);
-	return payload;
+	try {
+		if (!token || token.length === 0) return null;
+		const payload = jwt.verify(token, process.env.AT_SECRET);
+		return payload;
+	} catch (err) {
+		return null;
+	}
 };
 
 module.exports = {

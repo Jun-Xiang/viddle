@@ -2,7 +2,7 @@ const { gql } = require("apollo-server-express");
 
 module.exports = gql`
 	type Message {
-		#id: ID
+		id: ID
 		# id of the live chat
 		roomId: ID
 		message: String

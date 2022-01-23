@@ -6,7 +6,13 @@ module.exports = {
 	mutation: {
 		addMessage: async (_, { message }, ctx) => {
 			ctx.pubsub.publish("NEW_MESSAGE", {
-				messageCreated: message,
+				messageCreated: {
+					...message,
+					sender: {
+						username: ctx.user.username,
+						profilePic: ctx.user.profilePic,
+					},
+				},
 			});
 			return await addMessage(
 				message.roomId,
