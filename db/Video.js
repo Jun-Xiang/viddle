@@ -70,6 +70,26 @@ const getSubscribingsVideos = async (offset, next, userId) => {
 	});
 };
 
+const searchVideos = async searchTerm => {
+	const videos = VideoModel.find({
+		$or: [
+			{
+				title: {
+					$regex: searchTerm,
+					$options: "ig",
+				},
+			},
+			{
+				description: {
+					$regex: searchTerm,
+					$options: "ig",
+				},
+			},
+		],
+	});
+	return videos;
+};
+
 const createVideo = async (video, authorId) => {
 	const { title, description, url, type } = await handleVideoInput(
 		video,
@@ -185,6 +205,7 @@ module.exports = {
 	getVideos,
 	getSubscribingsVideos,
 	getUserVideos,
+	searchVideos,
 	createVideo,
 	updateVideo,
 	deleteVideo,

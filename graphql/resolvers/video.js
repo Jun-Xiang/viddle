@@ -10,6 +10,7 @@ const {
 	removeFromLikes,
 	addDislikes,
 	removeFromDislikes,
+	searchVideos,
 } = require("../../db/Video");
 
 module.exports = {
@@ -18,6 +19,8 @@ module.exports = {
 		getVideos: async (_, { offset = 0, next = 10 }) =>
 			await getVideos(offset, next),
 		getUserVideos: async (_, __, ctx) => await getUserVideos(ctx.user.id),
+		searchVideos: async (_, { searchTerm }) =>
+			await searchVideos(searchTerm),
 	},
 	mutation: {
 		addVideo: async (_, { video }, ctx) =>

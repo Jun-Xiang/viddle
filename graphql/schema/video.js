@@ -26,6 +26,7 @@ module.exports = gql`
 		getVideo(id: ID): Video
 		getVideos(offset: Int, next: Int): [Video]
 		getUserVideos: [Video]
+		searchVideos(searchTerm: String): [Video]
 	}
 
 	extend type Mutation {
