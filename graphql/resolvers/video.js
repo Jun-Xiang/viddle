@@ -2,6 +2,7 @@ const {
 	getVideoById,
 	getVideos,
 	getUserVideos,
+	getLiveVideos,
 	createVideo,
 	updateVideo,
 	deleteVideo,
@@ -24,6 +25,7 @@ module.exports = {
 			await searchVideos(searchTerm),
 		getSubscribingsVideos: async (_, { offset = 0, next = 10 }, ctx) =>
 			await getSubscribingsVideos(offset, next, ctx.user.id),
+		getLiveVideos: async () => await getLiveVideos(),
 	},
 	mutation: {
 		addVideo: async (_, { video }, ctx) =>

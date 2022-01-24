@@ -70,6 +70,20 @@ const getSubscribingsVideos = async (offset, next, userId) => {
 	});
 };
 
+const getLiveVideos = async _ => {
+	const videos = await VideoModel.find({ type: "live" })
+		.sort({ createdAt: -1 })
+		.skip(Number(offset))
+		.limit(Number(next))
+		.populate("author")
+		.lean();
+	return videos.map(v => {
+		v.author = getSubscribersCount({ ...v.author });
+		v.id = v._id;
+		return v;
+	});
+};
+
 const searchVideos = async searchTerm => {
 	const videos = VideoModel.find({
 		$or: [
@@ -205,6 +219,7 @@ module.exports = {
 	getVideos,
 	getSubscribingsVideos,
 	getUserVideos,
+	getLiveVideos,
 	searchVideos,
 	createVideo,
 	updateVideo,
