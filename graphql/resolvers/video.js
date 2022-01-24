@@ -3,6 +3,7 @@ const {
 	getVideos,
 	getUserVideos,
 	getLiveVideos,
+	getLikeVideos,
 	createVideo,
 	updateVideo,
 	deleteVideo,
@@ -26,6 +27,8 @@ module.exports = {
 		getSubscribingsVideos: async (_, { offset = 0, next = 10 }, ctx) =>
 			await getSubscribingsVideos(offset, next, ctx.user.id),
 		getLiveVideos: async () => await getLiveVideos(),
+		getLikeVideos: async (_, __, ctx) => await getLikeVideos(ctx.user.id),
+		// Do like videos
 	},
 	mutation: {
 		addVideo: async (_, { video }, ctx) =>

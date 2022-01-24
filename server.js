@@ -24,6 +24,7 @@ async function startApolloServer(schema) {
 	const app = express();
 	const wss = new WebSocket.Server({ port: "5000" });
 	const clients = {};
+	const startingBuffer = {};
 	const httpServer = createServer(app);
 	const subscriptionServer = SubscriptionServer.create(
 		{
@@ -80,7 +81,9 @@ async function startApolloServer(schema) {
 			useUnifiedTopology: true,
 			useNewUrlParser: true,
 		},
-		_ => console.log("Connected to mongodb 🎉")
+		err => {
+			err ? console.error(err) : console.log("Connected to mongodb 🎉");
+		}
 	);
 
 	app.use(express.static("/public"));
@@ -94,6 +97,8 @@ async function startApolloServer(schema) {
 		const token = query.get("token");
 		let fileStream;
 		if (isInitiating) {
+			clients[id] = [];
+			startingBuffer[id] = [];
 			const filename = `${Date.now() + id}.webm`;
 			fileStream = fs
 				.createWriteStream(filename, {
@@ -101,6 +106,10 @@ async function startApolloServer(schema) {
 				})
 				.on("close", async _ => {
 					try {
+						await UserModel.findByIdAndUpdate(id, {
+							isLive: false,
+						});
+						console.log("ended");
 						const result = await pathUpload(filename, id);
 						await VideoModel.findOneAndUpdate(
 							{
@@ -114,27 +123,31 @@ async function startApolloServer(schema) {
 								sort: { createdAt: -1 },
 							}
 						);
-						await UserModel.findByIdAndUpdate(id, {
-							isLive: false,
-						});
 						fs.unlinkSync(filename);
 					} catch (err) {
 						console.log(err);
 					}
 				});
 		} else {
-			if (clients[id]) clients[id].push(ws);
-			else clients[id] = [ws];
+			ws.send(startingBuffer[id].length);
+			if (startingBuffer[id].length > 0)
+				startingBuffer[id].forEach(b => ws.send(b));
+			clients[id].push(ws);
 		}
 
 		ws.on("message", msg => {
+			startingBuffer[id].push(msg);
 			clients[id]?.forEach(ws => {
 				ws.send(msg);
 			});
 			fileStream.write(msg);
 		});
 		ws.on("close", _ => {
-			fileStream?.end();
+			if (isInitiating) {
+				clients[id] = [];
+				startingBuffer[id] = [];
+				fileStream.end();
+			}
 		});
 	});
 

@@ -71,7 +71,24 @@ const getSubscribingsVideos = async (offset, next, userId) => {
 };
 
 const getLiveVideos = async _ => {
-	const videos = await VideoModel.find({ type: "live" })
+	const videos = await VideoModel.find({
+		type: "live",
+		url: { $exists: false },
+	})
+		.sort({ createdAt: -1 })
+		.skip(Number(offset))
+		.limit(Number(next))
+		.populate("author")
+		.lean();
+	return videos.map(v => {
+		v.author = getSubscribersCount({ ...v.author });
+		v.id = v._id;
+		return v;
+	});
+};
+
+const getLikeVideos = async userId => {
+	const videos = await VideoModel.find({ likes: userId })
 		.sort({ createdAt: -1 })
 		.skip(Number(offset))
 		.limit(Number(next))
@@ -220,6 +237,7 @@ module.exports = {
 	getSubscribingsVideos,
 	getUserVideos,
 	getLiveVideos,
+	getLikeVideos,
 	searchVideos,
 	createVideo,
 	updateVideo,
